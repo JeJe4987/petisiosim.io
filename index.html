@@ -528,14 +528,23 @@ const firebaseConfig = {
       });
     }
 
-    // Save a single petition to Firebase Realtime Database
-    function savePetition(petition) {
-      const petitionRef = database.ref('petitions/' + petition.id);
-      return petitionRef.set(petition).catch((error) => {
-        alert('Gagal menyimpan data petisi: ' + error.message);
-        console.error('Error savePetition:', error);
-      });
-    }
+      // Save a single petition to Firebase Realtime Database
+      function savePetition(petition) {
+        const petitionRef = database.ref('petitions/' + petition.id);
+        return petitionRef.set(petition).catch((error) => {
+          alert('Gagal menyimpan data petisi: ' + error.message);
+          console.error('Error savePetition:', error);
+        });
+      }
+
+      // Save all petitions to Firebase Realtime Database
+      function savePetitions() {
+        const petitionsRef = database.ref('petitions');
+        return petitionsRef.set(petitions).catch((error) => {
+          alert('Gagal menyimpan data petisi: ' + error.message);
+          console.error('Error savePetitions:', error);
+        });
+      }
 
     // Render list of petitions
     function renderPetitionList() {
