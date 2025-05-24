@@ -625,6 +625,9 @@
         return;
       }
 
+      const title = titleInput.value.trim();
+      const description = descInput.value.trim();
+      const image = imageInput.value.trim();
       const targetInput = document.getElementById('petition-target');
       const target = parseInt(targetInput.value, 10);
 
