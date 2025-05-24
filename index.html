@@ -370,6 +370,7 @@
   <nav>
     <button id="nav-home" class="active" aria-label="Home" type="button">Home</button>
     <button id="nav-create" aria-label="Buat Petisi" type="button">Buat Petisi</button>
+    <button id="admin-toggle" aria-label="Toggle Admin Mode" type="button" style="background:#d9534f; margin-left: 1rem; min-width: 120px;">Admin Mode: Off</button>
   </nav>
 </header>
 
@@ -468,6 +469,9 @@
     let lastFocusedElement = null;
     const fallbackImage = 'https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0?auto=format&fit=crop&w=400&q=80';
 
+    // Admin mode state
+    let isAdmin = false;
+
     // Load petitions from localStorage with error handling
     function loadPetitions() {
       try {
@@ -538,6 +542,33 @@
         signCount.textContent = `${petition.signatures} / ${petition.target || '–'} tandatangan`;
 
         footer.appendChild(signCount);
+
+        // Add delete button if admin mode is active
+        if (isAdmin) {
+          const deleteBtn = document.createElement('button');
+          deleteBtn.textContent = 'Hapus';
+          deleteBtn.style.backgroundColor = '#d9534f';
+          deleteBtn.style.color = 'white';
+          deleteBtn.style.border = 'none';
+          deleteBtn.style.borderRadius = '6px';
+          deleteBtn.style.padding = '0.3rem 0.7rem';
+          deleteBtn.style.cursor = 'pointer';
+          deleteBtn.style.fontSize = '0.9rem';
+          deleteBtn.style.marginLeft = '8px';
+          deleteBtn.setAttribute('aria-label', `Hapus petisi: ${petition.title}`);
+
+          deleteBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (confirm(`Apakah kamu yakin ingin menghapus petisi "${petition.title}"? Tindakan ini tidak bisa dibatalkan.`)) {
+              petitions = petitions.filter(p => p.id !== petition.id);
+              savePetitions();
+              renderPetitionList();
+              alert('Petisi berhasil dihapus.');
+            }
+          });
+
+          footer.appendChild(deleteBtn);
+        }
 
         card.appendChild(img);
         content.appendChild(title);
@@ -710,6 +741,36 @@
     });
     navCreateBtn.addEventListener('click', () => {
       showCreate();
+    });
+
+    // Admin toggle button event
+    const adminToggleBtn = document.getElementById('admin-toggle');
+    const ADMIN_PASSWORD = 'jeprygantengbanget'; // Set your admin password here
+
+    adminToggleBtn.addEventListener('click', () => {
+      if (!isAdmin) {
+        const input = prompt('Masukkan password admin untuk mengaktifkan mode admin:');
+        if (input === null) {
+          // User cancelled prompt
+          return;
+        }
+        if (input === ADMIN_PASSWORD) {
+          isAdmin = true;
+          adminToggleBtn.textContent = 'Admin Mode: On';
+          adminToggleBtn.style.backgroundColor = '#5cb85c';
+          renderPetitionList();
+          alert('Mode admin diaktifkan.');
+        } else {
+          alert('Password salah. Mode admin tidak diaktifkan.');
+        }
+      } else {
+        // Disable admin mode without password
+        isAdmin = false;
+        adminToggleBtn.textContent = 'Admin Mode: Off';
+        adminToggleBtn.style.backgroundColor = '#d9534f';
+        renderPetitionList();
+        alert('Mode admin dinonaktifkan.');
+      }
     });
 
     // Logo click + keyboard (Enter/Space) to go home
