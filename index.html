@@ -428,12 +428,31 @@
   </p>
 </footer>
 
-<script>
-  (function(){
-    // Utility to generate unique IDs for petitions
-    function generateId() {
-      return 'p-' + Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
-    }
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+
+  <script>
+    (function(){
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyA5V-Gaz2okyoJnvDCGdrWGStzBEqzLVzI",
+  authDomain: "petisi-osim.firebaseapp.com",
+  databaseURL: "https://petisi-osim-default-rtdb.firebaseio.com",
+  projectId: "petisi-osim",
+  storageBucket: "petisi-osim.firebasestorage.app",
+  messagingSenderId: "495834815670",
+  appId: "1:495834815670:web:c7b5607a60035a2d975a17",
+  measurementId: "G-MYDCZTRK9N"
+};
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
+      const database = firebase.database();
+
+      // Utility to generate unique IDs for petitions
+      function generateId() {
+        return 'p-' + Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+      }
 
     // Dom elements
     const navHomeBtn = document.getElementById('nav-home');
@@ -463,7 +482,26 @@
     const importTextarea = document.getElementById('import-textarea');
     const importConfirmBtn = document.getElementById('import-confirm-btn');
 
-    // State
+    // State / tambah petisi
+    const predefinedPetitions = [
+      {
+        id: 'p-predefined1',
+        title: 'Petisi untuk Lingkungan Bersih',
+        description: 'Mari kita jaga lingkungan kita tetap bersih dan sehat untuk generasi mendatang.',
+        image: '',
+        signatures: 120,
+        target: 200
+      },
+      {
+        id: 'p-predefined2',
+        title: 'Petisi Pendidikan Gratis',
+        description: 'Kami mendukung pendidikan gratis untuk semua anak di seluruh negeri.',
+        image: '',
+        signatures: 300,
+        target: 500
+      }
+    ];
+
     let petitions = [];
     let currentPetitionId = null;
     let lastFocusedElement = null;
@@ -472,31 +510,31 @@
     // Admin mode state
     let isAdmin = false;
 
-    // Load petitions from localStorage with error handling
+    // Load petitions from Firebase Realtime Database with real-time listener
     function loadPetitions() {
-      try {
-        const saved = localStorage.getItem('petisiFun_petitions');
-        petitions = saved ? JSON.parse(saved) : [];
-        if (!Array.isArray(petitions)) {
+      const petitionsRef = database.ref('petitions');
+      petitionsRef.on('value', (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+          petitions = Object.values(data);
+        } else {
           petitions = [];
-          console.warn("Data petisi di localStorage tidak valid, reset data");
-          localStorage.removeItem('petisiFun_petitions');
         }
-      } catch(e) {
-        console.error("Gagal memuat data petisi:", e);
+        renderPetitionList();
+      }, (error) => {
+        console.error("Gagal memuat data petisi dari Firebase:", error);
         petitions = [];
-        localStorage.removeItem('petisiFun_petitions');
-      }
+        renderPetitionList();
+      });
     }
 
-    // Save petitions to localStorage with error handling
-    function savePetitions() {
-      try {
-        localStorage.setItem('petisiFun_petitions', JSON.stringify(petitions));
-      } catch(e) {
-        alert('Gagal menyimpan data petisi. Pastikan penyimpanan browser tidak penuh atau dibatasi.');
-        console.error('Error savePetitions:', e);
-      }
+    // Save a single petition to Firebase Realtime Database
+    function savePetition(petition) {
+      const petitionRef = database.ref('petitions/' + petition.id);
+      return petitionRef.set(petition).catch((error) => {
+        alert('Gagal menyimpan data petisi: ' + error.message);
+        console.error('Error savePetition:', error);
+      });
     }
 
     // Render list of petitions
