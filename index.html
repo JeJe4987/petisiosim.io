@@ -388,6 +388,8 @@
       <input type="text" id="petition-title" name="title" required minlength="5" maxlength="100" placeholder="Masukkan judul petisi..." autocomplete="off" />
       <label for="petition-description">Deskripsi Petisi</label>
       <textarea id="petition-description" name="description" required minlength="10" maxlength="1000" placeholder="Jelaskan apa yang ingin kamu petisikan..."></textarea>
+      <label for="petition-target">Target Tandatangan</label>
+      <input type="number" id="petition-target" name="target" required min="1" placeholder="Masukkan target tandatangan..." autocomplete="off" />
       <label for="petition-image">URL Gambar (opsional)</label>
       <input type="text" id="petition-image" name="image" placeholder="https://contoh.com/gambar.jpg" autocomplete="off" />
       <button type="submit">Buat Petisi</button>
@@ -533,7 +535,7 @@
 
         const signCount = document.createElement('span');
         signCount.className = 'sign-count';
-        signCount.textContent = `${petition.signatures} tandatangan`;
+        signCount.textContent = `${petition.signatures} / ${petition.target || '–'} tandatangan`;
 
         footer.appendChild(signCount);
 
@@ -592,9 +594,8 @@
         return;
       }
 
-      const title = titleInput.value.trim();
-      const description = descInput.value.trim();
-      const image = imageInput.value.trim();
+      const targetInput = document.getElementById('petition-target');
+      const target = parseInt(targetInput.value, 10);
 
       if(title.length < 5) {
         alert('Judul petisi minimal 5 karakter.');
@@ -604,6 +605,11 @@
       if(description.length < 10) {
         alert('Deskripsi petisi minimal 10 karakter.');
         descInput.focus();
+        return;
+      }
+      if(isNaN(target) || target < 1) {
+        alert('Target tandatangan harus berupa angka positif.');
+        targetInput.focus();
         return;
       }
       if(image && !isValidUrl(image)) {
@@ -618,6 +624,7 @@
         description,
         image: image || '',
         signatures: 0,
+        target: target,
       };
 
       petitions.unshift(newPetition);
@@ -642,7 +649,7 @@
       modalImage.src = petition.image || fallbackImage;
       modalImage.alt = petition.title + ' image';
       modalImage.onerror = () => { modalImage.src = fallbackImage; };
-      modalSignCount.textContent = petition.signatures + (petition.signatures === 1 ? " tandatangan" : " tandatangan");
+      modalSignCount.textContent = (petition.signatures || 0) + " / " + (petition.target || '–') + " tandatangan";
       modal.style.display = 'flex';
       modal.classList.add('active');
       modal.setAttribute('aria-hidden', 'false');
