@@ -1,0 +1,865 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Petisi Fun - Have Fun with Petitions!</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f9fafb;
+    color: #222;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  header {
+    background: #0052cc;
+    color: white;
+    padding: 1.25rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 3px 8px rgb(0 0 0 / 0.1);
+    flex-wrap: wrap;
+  }
+
+  header h1 {
+    margin: 0;
+    font-weight: 600;
+    font-size: 1.75rem;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  nav {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  nav button {
+    background: #0d6efd;
+    border: none;
+    color: white;
+    padding: 0.5rem 1.25rem;
+    font-size: 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    min-width: 100px;
+  }
+  nav button:hover,
+  nav button.active,
+  nav button:focus-visible {
+    background: #083ea6;
+    outline: none;
+  }
+
+  main {
+    max-width: 960px;
+    margin: 2rem auto 3rem;
+    padding: 0 1rem;
+    min-height: 70vh;
+    word-wrap: break-word;
+    flex-grow: 1;
+  }
+
+  /* Petition list styling */
+  #petition-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill,minmax(280px,1fr));
+    gap: 1rem;
+  }
+
+  .petition-card {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    cursor: pointer;
+    transition: box-shadow 0.3s ease;
+    outline-offset: 2px;
+  }
+
+  .petition-card:hover,
+  .petition-card:focus-visible {
+    box-shadow: 0 5px 15px rgb(0 82 204 / 0.4);
+    outline: 2px solid #083ea6;
+  }
+
+  .petition-image {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+    background: #ddd;
+    user-select: none;
+  }
+
+  .petition-content {
+    padding: 1rem;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .petition-title {
+    margin: 0 0 0.5rem;
+    font-weight: 600;
+    font-size: 1.15rem;
+    color: #0041a8;
+  }
+
+  .petition-desc {
+    flex-grow: 1;
+    font-size: 0.9rem;
+    color: #444;
+    margin-bottom: 1rem;
+    overflow: hidden;
+    max-height: 3.5em;
+    line-height: 1.2em;
+  }
+
+  .petition-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .sign-count {
+    font-weight: 700;
+    color: #0052cc;
+    font-size: 1rem;
+  }
+
+  /* Create form styling */
+  #create-petition {
+    background: white;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 1px 8px rgba(0,0,0,0.1);
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  #create-petition h2 {
+    font-weight: 600;
+    color: #0052cc;
+    margin-bottom: 1rem;
+  }
+
+  #create-petition label {
+    display: block;
+    margin: 0.8rem 0 0.3rem;
+    color: #333;
+    font-weight: 600;
+  }
+  #create-petition input[type="text"],
+  #create-petition textarea {
+    width: 100%;
+    padding: 0.6rem 0.8rem;
+    font-size: 1rem;
+    border: 1.5px solid #ccc;
+    border-radius: 6px;
+    transition: border-color 0.3s ease;
+    font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+  #create-petition input[type="text"]:focus,
+  #create-petition textarea:focus {
+    border-color: #0052cc;
+    outline: none;
+  }
+  #create-petition textarea {
+    resize: vertical;
+    min-height: 100px;
+  }
+  #create-petition button[type="submit"] {
+    margin-top: 1.25rem;
+    background-color: #0052cc;
+    padding: 0.7rem 1.4rem;
+    border: none;
+    color: white;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    min-width: 130px;
+  }
+  #create-petition button[type="submit"]:hover,
+  #create-petition button[type="submit"]:focus-visible {
+    background-color: #083ea6;
+    outline: none;
+  }
+
+  /* Data management buttons container */
+  #data-management {
+    margin-top: 1.8rem;
+    font-size: 0.9rem;
+    color: #555;
+  }
+  #data-management button {
+    background: #0069d9;
+    border: none;
+    color: white;
+    margin-right: 8px;
+    padding: 0.4rem 0.9rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    font-size: 0.9rem;
+  }
+  #data-management button:hover,
+  #data-management button:focus-visible {
+    background: #004a99;
+    outline: none;
+  }
+  #data-management textarea {
+    width: 100%;
+    height: 80px;
+    margin-top: 0.5rem;
+    font-family: monospace, monospace;
+    font-size: 0.85rem;
+    border: 1.5px solid #ccc;
+    border-radius: 6px;
+    padding: 0.5rem;
+    resize: vertical;
+  }
+
+  /* Petition detail modal */
+  #modal {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    z-index: 50;
+  }
+
+  #modal.active {
+    display: flex;
+  }
+
+  #modal-content {
+    background: white;
+    border-radius: 12px;
+    max-width: 700px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 1.5rem 2rem 2rem;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+
+  #modal-close {
+    position: absolute;
+    top: 12px; right: 12px;
+    background: transparent;
+    border: none;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #333;
+    cursor: pointer;
+    transition: color 0.3s ease;
+  }
+  #modal-close:hover,
+  #modal-close:focus-visible {
+    color: #0052cc;
+    outline: none;
+  }
+  #modal-close:focus-visible {
+    outline: 2px solid #083ea6;
+  }
+  #modal-image {
+    width: 100%;
+    max-height: 320px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 1rem;
+    background: #ccc;
+    user-select: none;
+  }
+
+  #modal-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: #0041a8;
+  }
+
+  #modal-desc {
+    font-size: 1.1rem;
+    color: #555;
+    margin-bottom: 1.5rem;
+    white-space: pre-line;
+    word-wrap: break-word;
+  }
+
+  #modal-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  #modal-sign-count {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: #0052cc;
+  }
+
+  #modal-sign-btn {
+    background: #0052cc;
+    border: none;
+    padding: 0.5rem 1.25rem;
+    color: white;
+    border-radius: 7px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    min-width: 150px;
+  }
+  #modal-sign-btn:hover,
+  #modal-sign-btn:focus-visible {
+    background: #083ea6;
+    outline: none;
+  }
+
+  /* Footer */
+  footer {
+    text-align: center;
+    padding: 1.5rem 1rem;
+    font-size: 0.9rem;
+    color: #777;
+    user-select: none;
+    border-top: 1px solid #ddd;
+  }
+
+  @media (max-width: 480px) {
+    main {
+      margin: 1.5rem 1rem 3rem;
+    }
+    nav button {
+      min-width: unset;
+      width: 100%;
+    }
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1 id="logo" tabindex="0" role="link" aria-label="Homepage Petisi Fun">Petisi Fun</h1>
+  <nav>
+    <button id="nav-home" class="active" aria-label="Home" type="button">Home</button>
+    <button id="nav-create" aria-label="Buat Petisi" type="button">Buat Petisi</button>
+  </nav>
+</header>
+
+<main>
+  <section id="home-section" aria-label="Daftar Petisi">
+    <h2>Petisi Terbaru</h2>
+    <div id="petition-list" aria-live="polite" aria-relevant="additions"></div>
+    <p id="no-petitions-msg" style="text-align:center; color:#555; display:none;">Belum ada petisi. Buat yang pertama yuk!</p>
+  </section>
+
+  <section id="create-section" style="display:none;" aria-label="Buat Petisi Baru">
+    <form id="create-petition" aria-describedby="form-instructions" novalidate>
+      <h2>Buat Petisi Baru</h2>
+      <p id="form-instructions" style="color:#555; font-size:0.9rem;">Isi formulir berikut untuk membuat petisi seru kamu!</p>
+      <label for="petition-title">Judul Petisi</label>
+      <input type="text" id="petition-title" name="title" required minlength="5" maxlength="100" placeholder="Masukkan judul petisi..." autocomplete="off" />
+      <label for="petition-description">Deskripsi Petisi</label>
+      <textarea id="petition-description" name="description" required minlength="10" maxlength="1000" placeholder="Jelaskan apa yang ingin kamu petisikan..."></textarea>
+      <label for="petition-image">URL Gambar (opsional)</label>
+      <input type="text" id="petition-image" name="image" placeholder="https://contoh.com/gambar.jpg" autocomplete="off" />
+      <button type="submit">Buat Petisi</button>
+    </form>
+
+    <div id="data-management">
+      <p><strong>Atur data petisi kamu:</strong></p>
+      <button id="export-btn" type="button" title="Salin data petisi ke clipboard">Export Data Petisi</button>
+      <button id="import-btn" type="button" title="Tampilkan area untuk import data petisi">Import Data Petisi</button>
+      <button id="reset-btn" type="button" title="Hapus semua data petisi (konfirmasi)">Reset Semua Data</button>
+      <textarea id="import-textarea" placeholder="Tempelkan data JSON petisi di sini untuk import..." style="display: none;"></textarea>
+      <button id="import-confirm-btn" type="button" style="display:none; margin-top: 6px;">Konfirmasi Import</button>
+    </div>
+  </section>
+</main>
+
+<!-- Petition Detail Modal -->
+<div id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" aria-describedby="modal-desc" tabindex="-1">
+  <div id="modal-content">
+    <button id="modal-close" aria-label="Tutup">&times;</button>
+    <img src="" alt="" id="modal-image" />
+    <h2 id="modal-title"></h2>
+    <p id="modal-desc"></p>
+    <div id="modal-footer">
+      <span id="modal-sign-count"></span>
+      <button id="modal-sign-btn">Tandatangani Petisi</button>
+    </div>
+  </div>
+</div>
+
+<footer>
+  &copy; 2024 Petisi Fun. Bersenang-senanglah dengan petisi buatanmu!
+  <p style="font-size: 0.85rem; color: #555; margin-top: 0.5rem;">
+    <strong>Catatan Privasi:</strong> Data petisi disimpan secara lokal di browser Anda dan hanya dapat diakses oleh Anda. Jika ada masalah dengan data atau ingin menandatangani petisi, silakan hubungi saya di <a href="mailto:your-email@example.com" style="color:#0052cc; text-decoration: underline;">your-email@example.com</a>.
+  </p>
+</footer>
+
+<script>
+  (function(){
+    // Utility to generate unique IDs for petitions
+    function generateId() {
+      return 'p-' + Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+    }
+
+    // Dom elements
+    const navHomeBtn = document.getElementById('nav-home');
+    const navCreateBtn = document.getElementById('nav-create');
+    const homeSection = document.getElementById('home-section');
+    const createSection = document.getElementById('create-section');
+    const petitionList = document.getElementById('petition-list');
+    const noPetitionsMsg = document.getElementById('no-petitions-msg');
+
+    const createForm = document.getElementById('create-petition');
+    const titleInput = document.getElementById('petition-title');
+    const descInput = document.getElementById('petition-description');
+    const imageInput = document.getElementById('petition-image');
+
+    const modal = document.getElementById('modal');
+    const modalCloseBtn = document.getElementById('modal-close');
+    const modalTitle = document.getElementById('modal-title');
+    const modalDesc = document.getElementById('modal-desc');
+    const modalImage = document.getElementById('modal-image');
+    const modalSignCount = document.getElementById('modal-sign-count');
+    const modalSignBtn = document.getElementById('modal-sign-btn');
+
+    // Data management elements
+    const exportBtn = document.getElementById('export-btn');
+    const importBtn = document.getElementById('import-btn');
+    const resetBtn = document.getElementById('reset-btn');
+    const importTextarea = document.getElementById('import-textarea');
+    const importConfirmBtn = document.getElementById('import-confirm-btn');
+
+    // State
+    let petitions = [];
+    let currentPetitionId = null;
+    let lastFocusedElement = null;
+    const fallbackImage = 'https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0?auto=format&fit=crop&w=400&q=80';
+
+    // Load petitions from localStorage with error handling
+    function loadPetitions() {
+      try {
+        const saved = localStorage.getItem('petisiFun_petitions');
+        petitions = saved ? JSON.parse(saved) : [];
+        if (!Array.isArray(petitions)) {
+          petitions = [];
+          console.warn("Data petisi di localStorage tidak valid, reset data");
+          localStorage.removeItem('petisiFun_petitions');
+        }
+      } catch(e) {
+        console.error("Gagal memuat data petisi:", e);
+        petitions = [];
+        localStorage.removeItem('petisiFun_petitions');
+      }
+    }
+
+    // Save petitions to localStorage with error handling
+    function savePetitions() {
+      try {
+        localStorage.setItem('petisiFun_petitions', JSON.stringify(petitions));
+      } catch(e) {
+        alert('Gagal menyimpan data petisi. Pastikan penyimpanan browser tidak penuh atau dibatasi.');
+        console.error('Error savePetitions:', e);
+      }
+    }
+
+    // Render list of petitions
+    function renderPetitionList() {
+      petitionList.innerHTML = '';
+      if(petitions.length === 0) {
+        noPetitionsMsg.style.display = 'block';
+        return;
+      } else {
+        noPetitionsMsg.style.display = 'none';
+      }
+      petitions.forEach(petition => {
+        const card = document.createElement('article');
+        card.className = 'petition-card';
+        card.tabIndex = 0;
+        card.setAttribute('role', 'button');
+        card.setAttribute('aria-pressed', 'false');
+        card.setAttribute('aria-label', `Buka detail petisi: ${petition.title}`);
+
+        const img = document.createElement('img');
+        img.className = 'petition-image';
+        img.alt = petition.title + ' image';
+        img.src = petition.image || fallbackImage;
+        img.onerror = () => { img.src = fallbackImage; };
+        img.setAttribute('loading', 'lazy');
+
+        const content = document.createElement('div');
+        content.className = 'petition-content';
+
+        const title = document.createElement('h3');
+        title.className = 'petition-title';
+        title.textContent = petition.title;
+
+        const desc = document.createElement('p');
+        desc.className = 'petition-desc';
+        desc.textContent = petition.description.length > 150 ? petition.description.slice(0,150)+'...' : petition.description;
+
+        const footer = document.createElement('div');
+        footer.className = 'petition-footer';
+
+        const signCount = document.createElement('span');
+        signCount.className = 'sign-count';
+        signCount.textContent = `${petition.signatures} tandatangan`;
+
+        footer.appendChild(signCount);
+
+        card.appendChild(img);
+        content.appendChild(title);
+        content.appendChild(desc);
+        content.appendChild(footer);
+        card.appendChild(content);
+
+        // Opening modal on click or keyboard
+        card.addEventListener('click', () => openPetitionModal(petition.id));
+        card.addEventListener('keyup', e => {
+          if(e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            openPetitionModal(petition.id);
+          }
+        });
+
+        petitionList.appendChild(card);
+      });
+    }
+
+    // Switch views
+    function showHome() {
+      homeSection.style.display = '';
+      createSection.style.display = 'none';
+      navHomeBtn.classList.add('active');
+      navCreateBtn.classList.remove('active');
+      titleInput.blur();
+      descInput.blur();
+      imageInput.blur();
+
+      // Hide import textarea and confirm button if visible
+      hideImportArea();
+    }
+
+    function showCreate() {
+      homeSection.style.display = 'none';
+      createSection.style.display = '';
+      navHomeBtn.classList.remove('active');
+      navCreateBtn.classList.add('active');
+      createForm.reset();
+      titleInput.focus();
+
+      // Hide import textarea and confirm button if visible
+      hideImportArea();
+    }
+
+    // Create new petition form submit handler
+    createForm.addEventListener('submit', e => {
+      e.preventDefault();
+
+      // Using built-in Constraint Validation API for validation plus additional
+      if(!createForm.checkValidity()) {
+        createForm.reportValidity();
+        return;
+      }
+
+      const title = titleInput.value.trim();
+      const description = descInput.value.trim();
+      const image = imageInput.value.trim();
+
+      if(title.length < 5) {
+        alert('Judul petisi minimal 5 karakter.');
+        titleInput.focus();
+        return;
+      }
+      if(description.length < 10) {
+        alert('Deskripsi petisi minimal 10 karakter.');
+        descInput.focus();
+        return;
+      }
+      if(image && !isValidUrl(image)) {
+        alert('URL gambar tidak valid. Gunakan format URL yang benar atau kosongkan saja.');
+        imageInput.focus();
+        return;
+      }
+
+      const newPetition = {
+        id: generateId(),
+        title,
+        description,
+        image: image || '',
+        signatures: 0,
+      };
+
+      petitions.unshift(newPetition);
+      savePetitions();
+      renderPetitionList();
+      showHome();
+
+      alert('Petisi berhasil dibuat! Yuk, bagikan dan kumpulkan tandatangan.');
+    });
+
+    // Modal open / close functions
+    function openPetitionModal(id) {
+      currentPetitionId = id;
+      const petition = petitions.find(p => p.id === id);
+      if(!petition) return;
+
+      // Save last focused element for focus return on close
+      lastFocusedElement = document.activeElement;
+
+      modalTitle.textContent = petition.title;
+      modalDesc.textContent = petition.description;
+      modalImage.src = petition.image || fallbackImage;
+      modalImage.alt = petition.title + ' image';
+      modalImage.onerror = () => { modalImage.src = fallbackImage; };
+      modalSignCount.textContent = petition.signatures + (petition.signatures === 1 ? " tandatangan" : " tandatangan");
+      modal.style.display = 'flex';
+      modal.classList.add('active');
+      modal.setAttribute('aria-hidden', 'false');
+      modalSignBtn.disabled = false;
+      modalSignBtn.textContent = 'Tandatangani Petisi';
+
+      // Trap keyboard focus inside modal
+      trapFocus(modal);
+
+      modalSignBtn.focus();
+    }
+
+    function closePetitionModal() {
+      modal.classList.remove('active');
+      modal.style.display = 'none';
+      modal.setAttribute('aria-hidden', 'true');
+      currentPetitionId = null;
+
+      // Return focus to last focused element after modal close
+      if(lastFocusedElement && lastFocusedElement.focus) {
+        lastFocusedElement.focus();
+      }
+    }
+
+    modalCloseBtn.addEventListener('click', closePetitionModal);
+    modal.addEventListener('click', e => {
+      if(e.target === modal) {
+        closePetitionModal();
+      }
+    });
+
+    // Close modal on Escape key
+    window.addEventListener('keydown', e => {
+      if(e.key === 'Escape' && modal.classList.contains('active')) {
+        e.preventDefault();
+        closePetitionModal();
+      }
+    });
+
+    // Sign petition button click handler
+    modalSignBtn.addEventListener('click', () => {
+      if (!currentPetitionId) return;
+      const petitionIndex = petitions.findIndex(p => p.id === currentPetitionId);
+      if (petitionIndex === -1) return;
+
+      // Increase signature count by 1, disable button to avoid multiple signature by same user in session
+      petitions[petitionIndex].signatures++;
+      savePetitions();
+      modalSignCount.textContent = petitions[petitionIndex].signatures + (petitions[petitionIndex].signatures === 1 ? " tandatangan" : " tandatangan");
+      modalSignBtn.textContent = 'Terima Kasih! ✅';
+      modalSignBtn.disabled = true;
+      renderPetitionList();
+    });
+
+    // Navigation event binding
+    navHomeBtn.addEventListener('click', () => {
+      showHome();
+    });
+    navCreateBtn.addEventListener('click', () => {
+      showCreate();
+    });
+
+    // Logo click + keyboard (Enter/Space) to go home
+    const logo = document.getElementById('logo');
+    logo.addEventListener('click', () => {
+      showHome();
+    });
+    logo.addEventListener('keyup', e => {
+      if(e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        showHome();
+      }
+    });
+
+    // URL validation helper
+    function isValidUrl(url) {
+      try {
+        const _ = new URL(url);
+        return true;
+      } catch {
+        return false;
+      }
+    }
+
+    // Focus trap for modal to maintain accessibility
+    function trapFocus(element) {
+      const focusableElementsString = 'a[href], area[href], input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), button:not([disabled]), iframe, object, embed, [tabindex]:not([tabindex="-1"]), [contenteditable]';
+      const focusableElements = element.querySelectorAll(focusableElementsString);
+      if (focusableElements.length === 0) return;
+
+      const firstFocusable = focusableElements[0];
+      const lastFocusable = focusableElements[focusableElements.length - 1];
+
+      function handleFocus(event) {
+        if (event.key === 'Tab' || event.keyCode === 9) {
+          if (event.shiftKey) {
+            if (document.activeElement === firstFocusable) {
+              event.preventDefault();
+              lastFocusable.focus();
+            }
+          } else {
+            if (document.activeElement === lastFocusable) {
+              event.preventDefault();
+              firstFocusable.focus();
+            }
+          }
+        }
+      }
+
+      element.addEventListener('keydown', handleFocus);
+
+      // Remove listener when modal closes
+      const observer = new MutationObserver(mutations => {
+        mutations.forEach(mutation => {
+          if (!element.classList.contains('active')) {
+            element.removeEventListener('keydown', handleFocus);
+            observer.disconnect();
+          }
+        });
+      });
+      observer.observe(element, { attributes: true, attributeFilter: ['class'] });
+    }
+
+    // Data management functions
+
+    // Export petitions JSON to clipboard
+    exportBtn.addEventListener('click', () => {
+      if(petitions.length === 0){
+        alert('Belum ada data petisi untuk di-export.');
+        return;
+      }
+      try {
+        const json = JSON.stringify(petitions, null, 2);
+        navigator.clipboard.writeText(json).then(() => {
+          alert('Data petisi telah disalin ke clipboard! Kamu bisa menyimpannya di tempat aman.');
+        }, () => {
+          alert('Gagal menyalin data ke clipboard. Coba salin secara manual:\n\n' + json);
+          showImportArea(json);
+        });
+      } catch(e) {
+        alert('Gagal melakukan export: ' + e.message);
+      }
+    });
+
+    // Show import area
+    importBtn.addEventListener('click', () => {
+      if(importTextarea.style.display === 'none' || importTextarea.style.display === ''){
+        showImportArea('');
+      } else {
+        hideImportArea();
+      }
+    });
+
+    function showImportArea(prefill='') {
+      importTextarea.value = prefill;
+      importTextarea.style.display = 'block';
+      importConfirmBtn.style.display = 'inline-block';
+      importTextarea.focus();
+    }
+
+    function hideImportArea() {
+      importTextarea.style.display = 'none';
+      importConfirmBtn.style.display = 'none';
+      importTextarea.value = '';
+    }
+
+    // Import petitions JSON from textarea
+    importConfirmBtn.addEventListener('click', () => {
+      const raw = importTextarea.value.trim();
+      if (!raw) {
+        alert('Masukkan data JSON petisi untuk melakukan import.');
+        importTextarea.focus();
+        return;
+      }
+      try {
+        const imported = JSON.parse(raw);
+        if (!Array.isArray(imported)) {
+          alert('Format data tidak valid. Harus berupa array JSON petisi.');
+          return;
+        }
+        // Basic validation on each petition object
+        let valid = imported.every(p => p.id && p.title && p.description && typeof p.signatures === 'number');
+        if(!valid){
+          alert('Beberapa data petisi tidak lengkap atau invalid. Import dibatalkan.');
+          return;
+        }
+        if(confirm('Apakah kamu yakin ingin mengganti semua data petisi dengan yang diimport? Data lama akan hilang.')){
+          petitions = imported;
+          savePetitions();
+          renderPetitionList();
+          hideImportArea();
+          alert('Data petisi berhasil diimport!');
+          showHome();
+        }
+      } catch(e) {
+        alert('Gagal memproses data JSON. Pastikan formatnya benar.\nError: ' + e.message);
+      }
+    });
+
+    // Reset all petitions data with confirmation
+    resetBtn.addEventListener('click', () => {
+      if(confirm('Apakah kamu yakin ingin menghapus semua data petisi? Tindakan ini tidak bisa dibatalkan.')){
+        petitions = [];
+        savePetitions();
+        renderPetitionList();
+        alert('Semua data petisi telah dihapus.');
+        showHome();
+      }
+    });
+
+    // Initialize
+    loadPetitions();
+    renderPetitionList();
+    showHome();
+
+  })();
+</script>
+</body>
+</html>
+
